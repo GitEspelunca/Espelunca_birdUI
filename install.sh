@@ -2,321 +2,78 @@
 
 ################################################################################
 # Bird UI Installation Script for Glitch Soc v4.7.0-alpha.1+
-# 
-# Usage:
-#   bash install.sh --path /path/to/glitch-soc [OPTIONS]
-#
-# Options:
-#   --path PATH              Path to Glitch Soc installation (REQUIRED)
-#   --default                Set Bird UI as default theme
-#   --no-backup              Skip backup creation
-#   --verbose                Enable verbose output
-#   --help                   Show this help message
+# Complete automated installation in a single command
 ################################################################################
 
 set -e
 
-# Color codes
+# Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 CYAN='\033[0;36m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
 # Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MASTODON_PATH=""
-SET_DEFAULT="false"
-CREATE_BACKUP="true"
 VERBOSE="false"
-LOG_FILE="${SCRIPT_DIR}/install.log"
-ERROR_LOG="${SCRIPT_DIR}/error.log"
-
-# Version
 VERSION="1.0.0"
 
-################################################################################
-# Logging Functions
-################################################################################
-
-log() {
-    local level="$1"
-    shift
-    local message="$@"
-    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
-    
-    case "$level" in
-        INFO)
-            echo -e "${BLUE}[INFO]${NC} $message" | tee -a "$LOG_FILE"
-            ;;
-        SUCCESS)
-            echo -e "${GREEN}[✓]${NC} $message" | tee -a "$LOG_FILE"
-            ;;
-        WARN)
-            echo -e "${YELLOW}[⚠]${NC} $message" | tee -a "$LOG_FILE"
-            ;;
-        ERROR)
-            echo -e "${RED}[✗]${NC} $message" | tee -a "$ERROR_LOG" >&2
-            ;;
-        DEBUG)
-            if [ "$VERBOSE" = "true" ]; then
-                echo -e "${CYAN}[DEBUG]${NC} $message" | tee -a "$LOG_FILE"
-            fi
-            ;;
-    esac
+log_info() {
+    echo -e "${BLUE}[INFO]${NC} $*"
 }
 
-header() {
-    echo -e "${CYAN}"
-    echo "╔════════════════════════════════════════════════════════════╗"
-    echo "║   Bird UI para Glitch Soc v4.7.0-alpha.1+                  ║"
-    echo "║   Complete Installation Package                            ║"
-    echo "║   Version: $VERSION                                         ║"
-    echo "╚════════════════════════════════════════════════════════════╝"
-    echo -e "${NC}"
+log_success() {
+    echo -e "${GREEN}[✓]${NC} $*"
+}
+
+log_warn() {
+    echo -e "${YELLOW}[⚠]${NC} $*"
+}
+
+log_error() {
+    echo -e "${RED}[✗]${NC} $*" >&2
 }
 
 error_exit() {
-    log ERROR "$1"
-    cleanup_on_error
+    log_error "$1"
     exit 1
 }
 
-cleanup_on_error() {
-    log WARN "Limpando arquivos temporários após erro..."
-    # Cleanup logic here
-}
-
-################################################################################
-# Validation Functions
-################################################################################
-
-validate_path() {
-    if [ ! -d "$1" ]; then
-        error_exit "Diretório não encontrado: $1"
-    fi
-    
-    if [ ! -f "$1/config/themes.yml" ]; then
-        error_exit "Não é uma instalação Mastodon/Glitch válida: $1"
-    fi
-    
-    if [ ! -d "$1/app/javascript/flavours" ]; then
-        error_exit "Estrutura de flavours não encontrada em: $1"
-    fi
-}
-
-check_dependencies() {
-    log INFO "Verificando dependências..."
-    
-    local missing_deps=()
-    
-    if ! command -v bash &> /dev/null; then
-        missing_deps+=("bash")
-    fi
-    
-    if ! command -v cp &> /dev/null; then
-        missing_deps+=("cp")
-    fi
-    
-    if [ ${#missing_deps[@]} -gt 0 ]; then
-        error_exit "Dependências faltando: ${missing_deps[*]}"
-    fi
-    
-    log SUCCESS "Todas as dependências presentes"
-}
-
-################################################################################
-# Backup Functions
-################################################################################
-
-backup_mastodon() {
-    if [ "$CREATE_BACKUP" = "false" ]; then
-        log WARN "Backup desabilitado - pulando backup"
-        return 0
-    fi
-    
-    log INFO "Criando backup de segurança..."
-    
-    local backup_dir="${MASTODON_PATH}_backup_birdui_$(date +%s)"
-    local files_to_backup=(
-        "config/themes.yml"
-        "config/locales/en.yml"
-        "app/javascript/flavours"
-        "app/javascript/skins"
-        "app/javascript/styles"
-    )
-    
-    mkdir -p "$backup_dir"
-    
-    for file in "${files_to_backup[@]}"; do
-        if [ -e "${MASTODON_PATH}/$file" ]; then
-            mkdir -p "$(dirname "$backup_dir/$file")"
-            cp -r "${MASTODON_PATH}/$file" "$backup_dir/$file"
-            log DEBUG "Backed up: $file"
-        fi
-    done
-    
-    log SUCCESS "Backup criado em: $backup_dir"
-    echo "$backup_dir" > "${SCRIPT_DIR}/.backup_path"
-}
-
-################################################################################
-# Installation Functions
-################################################################################
-
-setup_flavour() {
-    log INFO "Configurando flavour Bird UI..."
-    
-    local flavour_src="${SCRIPT_DIR}/flavour/bird-ui"
-    local flavour_dst="${MASTODON_PATH}/app/javascript/flavours/bird-ui"
-    
-    if [ ! -d "$flavour_src" ]; then
-        error_exit "Flavour Bird UI não encontrado em: $flavour_src"
-    fi
-    
-    log DEBUG "Copiando arquivos do flavour..."
-    mkdir -p "$flavour_dst"
-    cp -r "$flavour_src"/* "$flavour_dst/"
-    
-    log SUCCESS "Flavour Bird UI instalado"
-}
-
-setup_skins() {
-    log INFO "Configurando skins Bird UI..."
-    
-    local skins_src="${SCRIPT_DIR}/skins/bird-ui"
-    local skins_dst="${MASTODON_PATH}/app/javascript/skins/bird-ui"
-    
-    if [ ! -d "$skins_src" ]; then
-        error_exit "Skins Bird UI não encontrado em: $skins_src"
-    fi
-    
-    log DEBUG "Copiando arquivos dos skins..."
-    mkdir -p "$skins_dst"
-    cp -r "$skins_src"/* "$skins_dst/"
-    
-    log SUCCESS "Skins Bird UI instalados (Dark, Light, Contrast, Accessible)"
-}
-
-setup_entry_points() {
-    log INFO "Configurando entry points de tema..."
-    
-    local entry_points_src="${SCRIPT_DIR}/entry-points"
-    local entry_points_dst="${MASTODON_PATH}/app/javascript/styles"
-    
-    if [ ! -d "$entry_points_src" ]; then
-        error_exit "Entry points não encontrado em: $entry_points_src"
-    fi
-    
-    log DEBUG "Copiando arquivos de entry points..."
-    cp "${entry_points_src}"/*.scss "$entry_points_dst/"
-    
-    log SUCCESS "Entry points instalados"
-}
-
-update_themes_config() {
-    log INFO "Atualizando config/themes.yml..."
-    
-    local themes_file="${MASTODON_PATH}/config/themes.yml"
-    
-    if [ ! -f "$themes_file" ]; then
-        error_exit "themes.yml não encontrado: $themes_file"
-    fi
-    
-    # Create a backup of the current themes.yml
-    cp "$themes_file" "${themes_file}.backup_birdui"
-    
-    # Execute the update script
-    bash "${SCRIPT_DIR}/scripts/update-themes-yml.sh" "$themes_file"
-    
-    log SUCCESS "config/themes.yml atualizado"
-}
-
-update_locales() {
-    log INFO "Atualizando localizações..."
-    
-    bash "${SCRIPT_DIR}/scripts/update-locales.sh" "$MASTODON_PATH"
-    
-    log SUCCESS "Localizações atualizadas"
-}
-
-set_permissions() {
-    log INFO "Configurando permissões de arquivos..."
-    
-    local bird_ui_path="${MASTODON_PATH}/app/javascript/flavours/bird-ui"
-    local skins_path="${MASTODON_PATH}/app/javascript/skins/bird-ui"
-    
-    chmod -R a+r "$bird_ui_path" 2>/dev/null || true
-    find "$bird_ui_path" -type d -exec chmod a+rx {} \; 2>/dev/null || true
-    
-    chmod -R a+r "$skins_path" 2>/dev/null || true
-    find "$skins_path" -type d -exec chmod a+rx {} \; 2>/dev/null || true
-    
-    log SUCCESS "Permissões configuradas"
-}
-
-################################################################################
-# Post-Installation Functions
-################################################################################
-
-show_next_steps() {
-    echo -e "${GREEN}"
-    echo "╔════════════════════════════════════════════════════════════╗"
-    echo "║                    ✓ INSTALAÇÃO CONCLUÍDA                  ║"
-    echo "╚════════════════════════════════════════════════════════════╝"
-    echo -e "${NC}"
-    
-    echo -e "${CYAN}Próximas etapas:${NC}"
-    echo ""
-    echo "1. Recompile os assets:"
-    echo -e "   ${YELLOW}cd $MASTODON_PATH${NC}"
-    echo -e "   ${YELLOW}RAILS_ENV=production bundle exec rails assets:precompile${NC}"
-    echo ""
-    echo "2. Reinicie os serviços:"
-    echo -e "   ${YELLOW}sudo systemctl restart mastodon-web${NC}"
-    echo ""
-    echo "3. Acesse Preferences > Appearance > Theme"
-    echo -e "   ${GREEN}Você verá as opções Bird UI disponíveis${NC}"
-    echo ""
-    echo -e "${CYAN}Documentação:${NC}"
-    echo "   - Detalhes: $SCRIPT_DIR/docs/INSTALLATION.md"
-    echo "   - Arquitetura: $SCRIPT_DIR/docs/ARCHITECTURE.md"
-    echo "   - Customização: $SCRIPT_DIR/docs/CUSTOMIZATION.md"
-    echo ""
-    echo -e "${YELLOW}Logs de instalação: $LOG_FILE${NC}"
+show_header() {
+    clear
+    cat << "EOF"
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║              🐦 Bird UI para Glitch Soc v4.7.0-alpha.1+                 ║
+║              Complete Automated Installation Package                     ║
+║                                                                           ║
+║              Version: 1.0.0                                               ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+EOF
     echo ""
 }
 
-################################################################################
-# Argument Parsing
-################################################################################
-
-parse_arguments() {
+parse_args() {
     while [[ $# -gt 0 ]]; do
         case $1 in
-            -p|--path)
+            --path)
                 MASTODON_PATH="$2"
                 shift 2
                 ;;
-            -d|--default)
-                SET_DEFAULT="true"
-                shift
-                ;;
-            --no-backup)
-                CREATE_BACKUP="false"
-                shift
-                ;;
-            -v|--verbose)
+            --verbose)
                 VERBOSE="true"
                 shift
                 ;;
-            -h|--help)
+            --help|-h)
                 show_help
                 exit 0
                 ;;
             *)
-                echo -e "${RED}Argumento desconhecido: $1${NC}"
+                log_error "Unknown option: $1"
                 show_help
                 exit 1
                 ;;
@@ -335,73 +92,236 @@ Required:
   --path PATH              Path to Glitch Soc installation
 
 Options:
-  --default                Set Bird UI as default theme
-  --no-backup              Skip backup creation
   --verbose                Enable verbose output
   --help                   Show this help message
 
 Examples:
-  # Basic installation
   bash install.sh --path /opt/mastodon
-
-  # Installation with Bird UI as default
-  bash install.sh --path /opt/mastodon --default
-
-  # Verbose installation
   bash install.sh --path /opt/mastodon --verbose
 EOF
 }
 
-################################################################################
-# Main Installation Flow
-################################################################################
+validate_mastodon_path() {
+    if [ -z "$MASTODON_PATH" ]; then
+        log_warn "Mastodon path not specified."
+        read -p "Enter your Glitch Soc installation path: " MASTODON_PATH
+    fi
+
+    if [ ! -d "$MASTODON_PATH" ]; then
+        error_exit "Directory not found: $MASTODON_PATH"
+    fi
+
+    if [ ! -f "$MASTODON_PATH/config/themes.yml" ]; then
+        error_exit "Not a valid Mastodon/Glitch installation: $MASTODON_PATH"
+    fi
+
+    if [ ! -d "$MASTODON_PATH/app/javascript/flavours" ]; then
+        error_exit "Flavours directory not found: $MASTODON_PATH/app/javascript/flavours"
+    fi
+
+    log_success "Mastodon path validated: $MASTODON_PATH"
+}
+
+check_dependencies() {
+    log_info "Checking dependencies..."
+    
+    local deps=("bash" "cp" "mkdir" "find" "sed")
+    for cmd in "${deps[@]}"; do
+        if ! command -v "$cmd" &> /dev/null; then
+            error_exit "Missing dependency: $cmd"
+        fi
+    done
+    
+    log_success "All dependencies present"
+}
+
+backup_installation() {
+    log_info "Creating backup..."
+    
+    local backup_dir="${MASTODON_PATH}_backup_birdui_$(date +%s)"
+    mkdir -p "$backup_dir"
+    
+    local files_to_backup=(
+        "config/themes.yml"
+        "config/locales/en.yml"
+        "app/javascript/flavours"
+        "app/javascript/skins"
+        "app/javascript/styles"
+    )
+    
+    for file in "${files_to_backup[@]}"; do
+        if [ -e "${MASTODON_PATH}/$file" ]; then
+            mkdir -p "$(dirname "$backup_dir/$file")"
+            cp -r "${MASTODON_PATH}/$file" "$backup_dir/$file" 2>/dev/null || true
+        fi
+    done
+    
+    log_success "Backup created: $backup_dir"
+    echo "$backup_dir" > "${SCRIPT_DIR}/.last_backup"
+}
+
+setup_flavour() {
+    log_info "Setting up Bird UI flavour..."
+    
+    local src="${SCRIPT_DIR}/flavour/bird-ui"
+    local dst="${MASTODON_PATH}/app/javascript/flavours/bird-ui"
+    
+    if [ ! -d "$src" ]; then
+        error_exit "Bird UI flavour not found at: $src"
+    fi
+    
+    mkdir -p "$dst"
+    cp -r "$src"/* "$dst/" 2>/dev/null || true
+    
+    log_success "Bird UI flavour installed"
+}
+
+setup_skins() {
+    log_info "Setting up Bird UI skins..."
+    
+    local src="${SCRIPT_DIR}/skins/bird-ui"
+    local dst="${MASTODON_PATH}/app/javascript/skins/bird-ui"
+    
+    if [ ! -d "$src" ]; then
+        error_exit "Bird UI skins not found at: $src"
+    fi
+    
+    mkdir -p "$dst"
+    cp -r "$src"/* "$dst/" 2>/dev/null || true
+    
+    log_success "Bird UI skins installed (Dark, Light, Contrast, Accessible)"
+}
+
+setup_entry_points() {
+    log_info "Setting up entry points..."
+    
+    local src="${SCRIPT_DIR}/entry-points"
+    local dst="${MASTODON_PATH}/app/javascript/styles"
+    
+    if [ ! -d "$src" ]; then
+        log_warn "Entry points directory not found at: $src"
+        return 0
+    fi
+    
+    cp "${src}"/*.scss "$dst/" 2>/dev/null || true
+    
+    log_success "Entry points installed"
+}
+
+update_themes_yml() {
+    log_info "Updating config/themes.yml..."
+    
+    local themes_file="${MASTODON_PATH}/config/themes.yml"
+    
+    if [ ! -f "$themes_file" ]; then
+        error_exit "themes.yml not found: $themes_file"
+    fi
+    
+    # Backup original
+    cp "$themes_file" "${themes_file}.backup_birdui"
+    
+    # Add Bird UI themes if not already present
+    if ! grep -q "bird-ui-auto" "$themes_file"; then
+        echo "" >> "$themes_file"
+        echo "# Bird UI Themes" >> "$themes_file"
+        echo "bird-ui-auto: styles/bird-ui-auto.scss" >> "$themes_file"
+        echo "bird-ui-accessible: styles/bird-ui-accessible.scss" >> "$themes_file"
+        echo "bird-ui-accessible-plus: styles/bird-ui-accessible-plus.scss" >> "$themes_file"
+    fi
+    
+    log_success "config/themes.yml updated"
+}
+
+update_locales() {
+    log_info "Updating locales..."
+    
+    local en_locale="${MASTODON_PATH}/config/locales/en.yml"
+    local pt_locale="${MASTODON_PATH}/config/locales/pt.yml"
+    local es_locale="${MASTODON_PATH}/config/locales/es.yml"
+    
+    # English
+    if [ -f "$en_locale" ] && ! grep -q "bird-ui-auto:" "$en_locale"; then
+        sed -i '/^  themes:/a\    bird-ui-auto: Mastodon Bird UI\n    bird-ui-accessible: Mastodon Bird UI (Accessible)\n    bird-ui-accessible-plus: Mastodon Bird UI (Accessible Plus)' "$en_locale" 2>/dev/null || true
+    fi
+    
+    # Portuguese
+    if [ -f "$pt_locale" ] && ! grep -q "bird-ui-auto:" "$pt_locale"; then
+        sed -i '/^  themes:/a\    bird-ui-auto: Mastodon Bird UI\n    bird-ui-accessible: Mastodon Bird UI (Acessível)\n    bird-ui-accessible-plus: Mastodon Bird UI (Acessível Plus)' "$pt_locale" 2>/dev/null || true
+    fi
+    
+    log_success "Locales updated"
+}
+
+set_permissions() {
+    log_info "Setting file permissions..."
+    
+    local bird_ui="${MASTODON_PATH}/app/javascript/flavours/bird-ui"
+    local skins="${MASTODON_PATH}/app/javascript/skins/bird-ui"
+    
+    chmod -R a+r "$bird_ui" 2>/dev/null || true
+    find "$bird_ui" -type d -exec chmod a+rx {} \; 2>/dev/null || true
+    
+    chmod -R a+r "$skins" 2>/dev/null || true
+    find "$skins" -type d -exec chmod a+rx {} \; 2>/dev/null || true
+    
+    log_success "Permissions set"
+}
+
+show_next_steps() {
+    cat << EOF
+
+${GREEN}╔═══════════════════════════════════════════════════════════════════════════╗${NC}
+${GREEN}║                    ✓ INSTALLATION COMPLETED SUCCESSFULLY                  ║${NC}
+${GREEN}╚═══════════════════════════════════════════════════════════════════════════╝${NC}
+
+${CYAN}Next steps:${NC}
+
+1. Recompile assets:
+   ${YELLOW}cd $MASTODON_PATH${NC}
+   ${YELLOW}RAILS_ENV=production bundle exec rails assets:precompile${NC}
+
+2. Restart services:
+   ${YELLOW}sudo systemctl restart mastodon-web${NC}
+
+3. Access Preferences > Appearance > Theme
+   ${GREEN}You will see Bird UI theme options available!${NC}
+
+${CYAN}Documentation:${NC}
+   - Installation Guide: $SCRIPT_DIR/docs/INSTALLATION.md
+   - Architecture: $SCRIPT_DIR/docs/ARCHITECTURE.md
+   - Customization: $SCRIPT_DIR/docs/CUSTOMIZATION.md
+   - Troubleshooting: $SCRIPT_DIR/docs/TROUBLESHOOTING.md
+
+${CYAN}Support:${NC}
+   For issues, check the documentation or open an issue on GitHub:
+   https://github.com/GitEspelunca/Espelunca_birdUI/issues
+
+EOF
+}
 
 main() {
-    header
+    show_header
     
-    # Parse arguments
-    parse_arguments "$@"
+    parse_args "$@"
     
-    # Validate arguments
-    if [ -z "$MASTODON_PATH" ]; then
-        echo -e "${YELLOW}Caminho para Glitch Soc não especificado.${NC}"
-        read -p "Digite o caminho para instalação do Glitch Soc: " MASTODON_PATH
-    fi
-    
-    if [ -z "$MASTODON_PATH" ]; then
-        error_exit "Caminho não pode estar vazio"
-    fi
-    
-    # Initialize logs
-    > "$LOG_FILE"
-    > "$ERROR_LOG"
-    
-    log INFO "Bird UI Installation Script v$VERSION"
-    log INFO "Instalando em: $MASTODON_PATH"
-    
-    # Validation
+    validate_mastodon_path
     check_dependencies
-    validate_path "$MASTODON_PATH"
+    backup_installation
     
-    # Backup
-    backup_mastodon
-    
-    # Installation
-    log INFO "Iniciando instalação..."
-    log INFO ""
+    log_info ""
+    log_info "Starting installation..."
+    log_info ""
     
     setup_flavour
     setup_skins
     setup_entry_points
-    update_themes_config
+    update_themes_yml
     update_locales
     set_permissions
     
-    # Post-installation
     show_next_steps
     
-    log SUCCESS "Instalação concluída com sucesso!"
+    log_success "Installation complete!"
 }
 
-# Run main function
 main "$@"
