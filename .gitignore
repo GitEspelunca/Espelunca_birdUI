@@ -1,0 +1,24 @@
+# Temporary files
+*.tmp
+*.log
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Installation artifacts
+install.log
+error.log
+
+# Backups
+*.bak
+*.backup
+
+# Node
+node_modules/
+.parcel-cache/
+dist/
+
+# Environment
+.env
+.env.local
