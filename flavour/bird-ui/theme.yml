@@ -1,0 +1,13 @@
+# Theme configuration for Bird UI flavour
+pack_directory: app/javascript/flavours/bird-ui/entrypoints
+
+signed_in_preload:
+  - flavours/bird-ui/async/compose.js
+  - flavours/bird-ui/async/home_timeline.js
+  - flavours/bird-ui/async/notifications.js
+
+locales: locales
+
+screenshot:
+  - flavours/bird-ui/images/bird-ui-preview-dark.png
+  - flavours/bird-ui/images/bird-ui-preview-light.png

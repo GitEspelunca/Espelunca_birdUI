@@ -1,0 +1,49 @@
+// Bird UI Button Component
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  
+  &--primary {
+    background-color: var(--color-primary);
+    color: #ffffff;
+    
+    &:hover {
+      background-color: var(--color-primary-dark);
+    }
+    
+    &:focus {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+  }
+  
+  &--secondary {
+    background-color: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-primary);
+    
+    &:hover {
+      background-color: var(--color-hover);
+    }
+  }
+  
+  &--icon {
+    padding: 8px;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    
+    &:hover {
+      background-color: var(--color-focus);
+    }
+  }
+}

@@ -1,0 +1,15 @@
+// Bird UI Favourite Micro-interaction
+.favourite-icon {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  position: relative;
+  cursor: pointer;
+  
+  &--active {
+    svg {
+      fill: #e0245e;
+      stroke: none;
+    }
+  }
+}

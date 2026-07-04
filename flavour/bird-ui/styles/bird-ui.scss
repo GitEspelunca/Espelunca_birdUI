@@ -1,0 +1,49 @@
+// Bird UI main stylesheet
+// Aggregates all Bird UI styles
+
+@use './variables/colors' as colors;
+@use './variables/spacing' as spacing;
+@use './variables/typography' as typography;
+
+@use './base/reset';
+@use './base/utilities';
+
+@use './layouts/main';
+@use './layouts/sidebar';
+@use './layouts/compose';
+
+@use './components/status';
+@use './components/avatar';
+@use './components/button';
+@use './components/profile';
+@use './components/navigation';
+
+@use './features/feed';
+@use './features/compose';
+@use './features/notifications';
+
+@use './micro-interactions/favourite';
+@use './micro-interactions/boost';
+
+@use './themes/dark' as dark;
+@use './themes/light' as light;
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-color-scheme="dark"]) {
+    @include light.apply-theme;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-color-scheme="light"]) {
+    @include dark.apply-theme;
+  }
+}
+
+[data-color-scheme="light"] {
+  @include light.apply-theme;
+}
+
+[data-color-scheme="dark"] {
+  @include dark.apply-theme;
+}

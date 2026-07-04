@@ -1,0 +1,16 @@
+// Bird UI Light Theme
+@use '../variables/colors' as colors;
+
+@mixin apply-theme {
+  background-color: #ffffff;
+  color: #0f1419;
+  
+  --color-primary: #1d9bf0;
+  --color-background: #ffffff;
+  --color-background-secondary: #f7f9fa;
+  --color-background-tertiary: #eff3f4;
+  --color-text-primary: #0f1419;
+  --color-text-secondary: #536471;
+  --color-border: #cfd9de;
+  --color-hover: rgba(15, 20, 25, 0.1);
+}

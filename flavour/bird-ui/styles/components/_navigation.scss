@@ -1,0 +1,39 @@
+// Bird UI Navigation Component
+.navigation {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.navigation__item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  border-radius: 20px;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-normal);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  
+  &:hover {
+    background-color: var(--color-hover);
+  }
+  
+  &--active {
+    color: var(--color-primary);
+    background-color: var(--color-focus);
+    
+    svg {
+      fill: var(--color-primary);
+    }
+  }
+}
+
+.navigation__icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}

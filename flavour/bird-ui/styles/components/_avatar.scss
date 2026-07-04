@@ -1,0 +1,27 @@
+// Bird UI Avatar Component
+.avatar {
+  display: inline-block;
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: var(--color-background-secondary);
+  
+  &--size-lg {
+    width: 48px;
+    height: 48px;
+  }
+  
+  &--size-md {
+    width: 40px;
+    height: 40px;
+  }
+  
+  &--size-sm {
+    width: 32px;
+    height: 32px;
+  }
+  
+  &--size-xs {
+    width: 24px;
+    height: 24px;
+  }
+}

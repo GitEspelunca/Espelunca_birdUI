@@ -1,0 +1,15 @@
+// Bird UI Boost Micro-interaction
+.boost-icon {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  position: relative;
+  cursor: pointer;
+  
+  &--active {
+    svg {
+      fill: #17bf63;
+      stroke: none;
+    }
+  }
+}

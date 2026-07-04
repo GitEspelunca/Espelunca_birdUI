@@ -1,0 +1,48 @@
+# Theme names and descriptions
+en:
+  flavours:
+    bird-ui:
+      name: "Bird UI"
+      description: "Twitter-inspired modern interface with improved UX"
+  skins:
+    bird-ui:
+      default: "Dark"
+      light: "Light"
+      contrast: "High Contrast"
+      accessible: "Accessible"
+
+pt:
+  flavours:
+    bird-ui:
+      name: "Bird UI"
+      description: "Interface moderna inspirada no Twitter com UX melhorada"
+  skins:
+    bird-ui:
+      default: "Escuro"
+      light: "Claro"
+      contrast: "Alto Contraste"
+      accessible: "Acessível"
+
+es:
+  flavours:
+    bird-ui:
+      name: "Bird UI"
+      description: "Interfaz moderna inspirada en Twitter con UX mejorada"
+  skins:
+    bird-ui:
+      default: "Oscuro"
+      light: "Claro"
+      contrast: "Alto Contraste"
+      accessible: "Accesible"
+
+fr:
+  flavours:
+    bird-ui:
+      name: "Bird UI"
+      description: "Interface moderne inspirée par Twitter avec UX améliorée"
+  skins:
+    bird-ui:
+      default: "Sombre"
+      light: "Clair"
+      contrast: "Contraste élevé"
+      accessible: "Accessible"
