@@ -1,0 +1,17 @@
+:root {
+  --color-primary: #1d9bf0;
+  --color-background: #ffffff;
+  --color-background-secondary: #f7f9fa;
+  --color-background-tertiary: #eff3f4;
+  --color-text-primary: #0f1419;
+  --color-text-secondary: #536471;
+  --color-text-tertiary: #657786;
+  --color-border: #cfd9de;
+  --color-hover: rgba(15, 20, 25, 0.1);
+  --color-focus: rgba(29, 155, 240, 0.15);
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+}

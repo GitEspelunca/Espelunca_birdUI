@@ -1,0 +1,41 @@
+:root {
+  --color-primary: #0a66c2;
+  --color-background: #000000;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #ffff00;
+  --color-text-tertiary: #00ffff;
+  --color-border: #ffffff;
+  --color-focus: #ffff00;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  font-size: 18px;
+  line-height: 1.8;
+}
+
+button, a, input {
+  min-height: 44px;
+  min-width: 44px;
+  font-size: 16px;
+}
+
+button:focus, a:focus, input:focus {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+a {
+  color: var(--color-text-secondary);
+  text-decoration: underline;
+  text-decoration-thickness: 3px;
+}
+
+.hashtag {
+  color: var(--color-text-tertiary);
+}
+
+.mention {
+  color: var(--color-text-secondary);
+}
